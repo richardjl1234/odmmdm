@@ -1,0 +1,1 @@
+cp ./db2consv_zs.lic  node_modules/ibm_db/installer/clidriver/license/db2consv_zs.lic

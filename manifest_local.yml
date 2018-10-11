@@ -1,0 +1,8 @@
+applications:
+- path: .
+  memory: 256M
+  instances: 1
+  domain: w3ibm.mybluemix.net
+  name: db2conn
+  host: db2conn
+  disk_quota: 512M
