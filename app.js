@@ -78,8 +78,8 @@ var process_result = function(sub_type, sub_types) {
          results_new[id][sub_types].push(results[item]); 
       }
       fs.writeFile('result_'+sub_types+'.json', JSON.stringify(results_new) , 'utf8', ()=>{console.log('the file ' + sub_types + ' is written successfully!')}) ; 
-      //console.log(JSON.stringify(results)); 
-      //console.log(JSON.stringify(results_new)); 
+      console.log(JSON.stringify(results,null,2)); 
+      console.log(JSON.stringify(results_new,null,2)); 
    }
 }
 

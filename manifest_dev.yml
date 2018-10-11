@@ -3,6 +3,6 @@ applications:
   memory: 256M
   instances: 1
   domain: w3ibm.mybluemix.net
-  name: db2conndev
-  host: db2conndev
+  name: odmmdmdev
+  host: odmmdmdev
   disk_quota: 512M

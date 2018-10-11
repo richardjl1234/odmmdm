@@ -3,6 +3,6 @@ applications:
   memory: 256M
   instances: 1
   domain: w3ibm.mybluemix.net
-  name: db2conn
-  host: db2conn
+  name: odmmdm
+  host: odmmdm
   disk_quota: 512M

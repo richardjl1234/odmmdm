@@ -1,1 +1,1 @@
-where E01.CFDRSRC = 'HHP' ; 
+where E01.RCNUM IN ('943511672', '910856744') ; 
