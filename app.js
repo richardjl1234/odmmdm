@@ -1,4 +1,5 @@
 var common_func=require('./common_func') ; 
+var curry = require('lodash').curry; 
 var http = require('http');
 var url = require('url') ; 
 var fs = require('fs'); 
@@ -55,8 +56,7 @@ http.createServer(function(request, response) {
 }).listen(8080);
 
 // use currying to create a group of functions
-var process_result = function(sub_type, sub_types) {
-   return function(result) {
+var process_result = curry(function(sub_type, sub_types, result) {
       var  results= result.map(function(item) {
          id = item.RCNUM; 
          delete item.RCNUM; 
@@ -80,8 +80,7 @@ var process_result = function(sub_type, sub_types) {
       fs.writeFile('result_'+sub_types+'.json', JSON.stringify(results_new) , 'utf8', ()=>{console.log('the file ' + sub_types + ' is written successfully!')}) ; 
       console.log(JSON.stringify(results,null,2)); 
       console.log(JSON.stringify(results_new,null,2)); 
-   }
-}
+}); 
 
 var process_name_result = process_result('name', 'names') ; 
 var process_tel_result = process_result('phone', 'phones') ; 
