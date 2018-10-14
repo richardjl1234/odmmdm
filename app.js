@@ -1,5 +1,5 @@
 var common_func=require('./common_func') ; 
-var curry = require('lodash').curry; 
+var _=require('ramda'); // make use of currying and compaose 
 var http = require('http');
 var url = require('url') ; 
 var fs = require('fs'); 
@@ -8,6 +8,7 @@ var request = require('request');
 var fs = require("fs-extra");
 var ibmdb = require('ibm_db');
 
+//initialize the sql file and put them into varialbes 
 var condition = fs.readFileSync('read_filter.sql', 'utf8'); 
 var sql_names = fs.readFileSync('read_names.sql', 'utf8') + condition; 
 var sql_emails = fs.readFileSync('read_emails.sql', 'utf8')  + condition; 
@@ -15,10 +16,8 @@ var sql_addrs = fs.readFileSync('read_addrs.sql', 'utf8')  + condition;
 var sql_tels = fs.readFileSync('read_tels.sql', 'utf8')  + condition; 
 var sql_ids = fs.readFileSync('read_ids.sql', 'utf8')  + condition; 
 
-connStr = "DATABASE="+process.env.CEDP_DB_NAME+";HOSTNAME="+process.env.CEDP_HOST+";PORT="+process.env.CEDP_PORT+";PROTOCOL=TCPIP;UID="+process.env.CEDP_USERID+";PWD="+process.env.CEDP_USERID_PASSWORD+";Security=SSL;sslTrustStoreLocation="+process.env.CEDP_TRUSTSTORE+";sslTrustStorePassword="+process.env.CEDP_TRUSTSTORE_PASSWORD; 
 
-console.log(connStr); 
-
+mdm_result = []; 
 data = '' ; 
 n = 0;  // count for the feedback count
 http.createServer(function(request, response) {
@@ -33,30 +32,13 @@ http.createServer(function(request, response) {
       common_func.queryODM(sql_emails).then(process_email_result).catch(function(err) {console.log("\n" + err)}); 
       common_func.queryODM(sql_ids).then(process_id_result).catch(function(err) {console.log("\n" + err)}); 
       common_func.queryODM(sql_tels).then(process_tel_result).catch(function(err) {console.log("\n" + err)}); 
-
-      ibmdb.open(connStr, function (err, connection) {
-         if (err) 
-         {
-            console.log(err);
-            return;
-         }
-         connection.query("select * from odm_odmprd.odmt_domain fetch first 10 rows only; ", function (err1, rows) {
-            if (err1) console.log(err1);
-            else {
-               response.write("<BR>Query result from Dallas CEDP: <BR>"); 
-               response.write(JSON.stringify(rows)); 
-               response.end();}
-
-            connection.close(function(err2) { 
-               if(err2) console.log(err2);
-            });
-         });
-      });
+      mdm_result.map((item)=>{response.write(JSON.stringify(item));}); 
+      response.end(); 
    }; 
 }).listen(8080);
 
 // use currying to create a group of functions
-var process_result = curry(function(sub_type, sub_types, result) {
+var process_result = _.curry(function(sub_type, sub_types, result) {
       var  results= result.map(function(item) {
          id = item.RCNUM; 
          delete item.RCNUM; 
@@ -65,9 +47,9 @@ var process_result = curry(function(sub_type, sub_types, result) {
          sub_result[sub_type] = item; 
          return sub_result; 
       }); 
-      fs.writeFile('result_'+sub_type+'.json', JSON.stringify(results) , 'utf8', ()=>{console.log('the file ' + sub_type + ' is written successfully!')}) ; 
-      results_new = {} ; 
+//      fs.writeFile('result_'+sub_type+'.json', JSON.stringify(results) , 'utf8', ()=>{console.log('the file ' + sub_type + ' is written successfully!')}) ; 
 
+      results_new = {} ; 
       for(var item in results) {
          id = results[item].RCNUM ; 
          if (typeof(results_new[id])== 'undefined'){  
@@ -77,11 +59,11 @@ var process_result = curry(function(sub_type, sub_types, result) {
          delete results[item].RCNUM; 
          results_new[id][sub_types].push(results[item]); 
       }
-      fs.writeFile('result_'+sub_types+'.json', JSON.stringify(results_new) , 'utf8', ()=>{console.log('the file ' + sub_types + ' is written successfully!')}) ; 
-      console.log(JSON.stringify(results,null,2)); 
-      console.log(JSON.stringify(results_new,null,2)); 
+      mdm_result[sub_type] = results_new ; 
+      fs.writeFile('result_'+sub_types+'.json', JSON.stringify(mdm_result[sub_type]) , 'utf8', ()=>{console.log('the file ' + sub_types + ' is written successfully!')}) ; 
+      //console.log(JSON.stringify(mdm_result[sub_type])); 
 }); 
-
+// define the functions from the curried base function. 
 var process_name_result = process_result('name', 'names') ; 
 var process_tel_result = process_result('phone', 'phones') ; 
 var process_addr_result = process_result('addr', 'addresses'); 
