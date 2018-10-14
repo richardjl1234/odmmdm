@@ -8,3 +8,4 @@ node*.log
 result.json
 npm-debug.*
 result*.json
+H*.json

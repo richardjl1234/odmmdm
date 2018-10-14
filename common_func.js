@@ -12,13 +12,15 @@ module.exports = {
                   //console.error("error: ", err.message);
                   reject("error" + err.message) ; 
                } else {
-                  console.log(sql) ; 
+                  //console.log(sql) ; 
                   conn.query(sql , function(err, records, moreResultSets) 
                      {
                         if(err){
                            reject(err); 
                         }else{
-                           conn.close(function(){ console.log("Connection Closed"); });
+                           conn.close(function(){ 
+                              //console.log("Connection Closed"); 
+                           });
                            resolve(records); 
                         }
                      });
