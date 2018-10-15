@@ -1,6 +1,6 @@
 var fs = require('fs'); 
 
-var feeders = ['HC9', 'HUS'] ; 
+var feeders = ['HC9', 'HPH', 'HSW', 'HNW'] ; 
 
 var merge_result = function(feeder) {
 
