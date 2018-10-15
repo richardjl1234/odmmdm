@@ -2,7 +2,7 @@ var fs = require('fs');
 var async = require('async'); 
 var _=require("ramda") ; 
 
-var feeders = ['HC9', 'HUS', 'HHA', 'HSW', 'HNW'] ; 
+var feeders = ['HC9', 'HPH', 'HSW', 'HNW'] ; 
 
 var merge_result = _.curry(function(feeder, cb) {
 

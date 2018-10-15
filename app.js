@@ -11,19 +11,18 @@ var async = require('async');
 
 //initialize the sql file and put them into varialbes 
 
-var feeders = [ 'HUS', 'HHA', 'HC9'];
-//var feeders = ['HPH', 'HC9', 'HSW', 'HNW'];
+var feeders = [ 'HUS', 'HHA', 'HC9', 'HHP', 'HHI', 'HJP'];
+//var feeders = ['HSW', 'HNW', 'HC9'];
 
 // define the functions from the curried base function. 
 
-var feederAsyncs = feeders.map((feeder) => {
-   return function(callback) {
-      process_feeder(feeder, callback);
+   //return function(callback) {
+   //   process_feeder(feeder, callback);
 //      callback(null, feeder);
-   }
-}); 
+//   }
+//}); 
 
-var process_feeder = function(feeder, cb)
+var process_feeder = _.curry(function(feeder, cb)
 {
    console.log("feeder is " + feeder) ; 
    condition =  "where E01.CFDRSRC = "+ "'" + feeder + "';";   
@@ -39,7 +38,9 @@ var process_feeder = function(feeder, cb)
          .catch(function(err) { callback(err); }); 
    }, function(err,results) { console.log(results); var x={}; x[feeder] = results; cb(null, x) }// cb is the the function need to be passed to process_feeder, and the assync which call this function will tell how to process the result. 
    );
-}
+}); 
+
+var feederAsyncs = feeders.map((feeder) => { return process_feeder(feeder); }); 
 
 data = '' ; 
 n = 0;  // count for the feedback count
@@ -50,7 +51,12 @@ http.createServer(function(request, response) {
       console.log('##############\n The web server is hit  ' + String(n) + ' times since last restart!') ; 
       console.log('http server is running... ');
       response.write('the page is hit ' + n + ' times!' ) ; 
-      async.series(feederAsyncs , function(err, results){ console.log(results); }); 
+      async.series(feederAsyncs , 
+         function(err, results){ 
+            console.log(results);
+            console.log("wait for 300s to make sure all files writting is completed!"); 
+            setTimeout( function() {async.series(curried_merge_result , function(err, rsts){ console.log(rsts); });}, 200000); 
+         }); 
       response.end(); 
    }; 
 }).listen(8080);
@@ -89,4 +95,43 @@ curried_process_result['tels']= process_result('phone', 'phones') ;
 curried_process_result['addrs']= process_result('addr', 'addresses'); 
 curried_process_result['emails']= process_result('email', 'emails'); 
 curried_process_result['ids']= process_result('identifier', 'identifiers') ; 
+
+
+var merge_result = _.curry(function(feeder, cb) {
+
+   names = require('./' + feeder + '_names.json') ; 
+   tels = require('./' + feeder + '_phones.json') ; 
+   addrs = require('./' + feeder + '_addresses.json') ; 
+   emails = require('./' + feeder + '_emails.json') ; 
+   ids = require('./' + feeder + '_identifiers.json') ; 
+
+   var result_all = names; 
+
+   for (var item in result_all)
+   { if (typeof(tels[item]) !== 'undefined') { Object.assign(result_all[item], tels[item]) } }
+
+   for (var item in result_all)
+   { if (typeof(addrs[item]) !== 'undefined') { Object.assign(result_all[item], addrs[item]) } }
+
+   for (var item in result_all)
+   { if (typeof(emails[item]) !== 'undefined') { Object.assign(result_all[item], emails[item]) } }
+
+   for (var item in result_all)
+   { if (typeof(ids[item]) !== 'undefined') { Object.assign(result_all[item], ids[item]) } }
+
+   var result_all_final = [] ; 
+   for (var item in result_all) 
+   {
+      var a = {"source": {"id":"TRI-000003", "memid": item, "action": "add"}}; 
+      result_all_final.push(Object.assign(a, result_all[item])) ; 
+   }
+
+   console.log("total count in " + feeder + " feeder is : "  , result_all_final.length); 
+   fs.writeFileSync(feeder + '_all.json', JSON.stringify(result_all_final) , 'utf8') ;
+   console.log("the file " + feeder + " is written successfully!") ; 
+   cb(null, feeder + " is Done!"); 
+}); 
+
+var curried_merge_result = feeders.map((feeder)=>{return merge_result(feeder); }); 
+
 
