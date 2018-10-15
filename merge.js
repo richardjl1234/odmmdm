@@ -1,8 +1,10 @@
 var fs = require('fs'); 
+var async = require('async'); 
+var _=require("ramda") ; 
 
-var feeders = ['HC9', 'HPH', 'HSW', 'HNW'] ; 
+var feeders = ['HC9', 'HUS', 'HHA', 'HSW', 'HNW'] ; 
 
-var merge_result = function(feeder) {
+var merge_result = _.curry(function(feeder, cb) {
 
    names = require('./' + feeder + '_names.json') ; 
    tels = require('./' + feeder + '_phones.json') ; 
@@ -32,11 +34,18 @@ var merge_result = function(feeder) {
    }
 
    console.log("total count in " + feeder + " feeder is : "  , result_all_final.length); 
-   fs.writeFile(feeder + '_all.json', JSON.stringify(result_all_final) , 'utf8', ()=>{console.log(feeder + '_all file is written successfully!')}) ;
-}
+   fs.writeFileSync(feeder + '_all.json', JSON.stringify(result_all_final) , 'utf8') ;
+   console.log("the file " + feeder + " is written successfully!") ; 
+   cb(null, feeder + " is Done!"); 
+}); 
+
+var curried_merge_result = feeders.map((feeder)=>{return merge_result(feeder); }); 
+
+async.series(curried_merge_result , function(err, results){ console.log(results); });
 
 
-feeders.map(merge_result) ; 
+//
+//feeders.map(merge_result) ; 
 
 
 
