@@ -1,0 +1,115 @@
+[
+  {
+    "source": {
+      "id": "TRI-000003",
+      "memid": "943511672",
+      "action": "add"
+    },
+    "names": [
+      {
+        "name": {
+          "family": "JIANG",
+          "given": "LEI"
+        }
+      }
+    ],
+    "addresses": [
+      {
+        "addr": {
+          "line1": "33# 501 Room,",
+          "line2": "Chun Shen Road 3455",
+          "city": "SHANGHAI",
+          "state": "Shanghai",
+          "postalcode": "201100",
+          "country": "China"
+        }
+      },
+      {
+        "addr": {
+          "line1": "33# 501 Room,",
+          "line2": "Chun Shen Road 3455",
+          "city": "SHANGHAI",
+          "state": "Shanghai",
+          "postalcode": "201100",
+          "country": "China"
+        }
+      }
+    ],
+    "emails": [
+      {
+        "email": {
+          "emailaddr": "jianglei@cn.ibm.com"
+        }
+      }
+    ],
+    "identifiers": [
+      {
+        "identifier": {
+          "id": "168315",
+          "issuer": "workday"
+        }
+      },
+      {
+        "identifier": {
+          "id": "943511672",
+          "issuer": "ibm"
+        }
+      }
+    ]
+  },
+  {
+    "source": {
+      "id": "TRI-000003",
+      "memid": "0J7871897",
+      "action": "add"
+    },
+    "names": [
+      {
+        "name": {
+          "family": "Dygert",
+          "given": "Hayden"
+        }
+      }
+    ],
+    "phones": [
+      {
+        "phone": {
+          "phone": "+  614-323-9591"
+        }
+      }
+    ],
+    "addresses": [
+      {
+        "addr": {
+          "line1": "55 E 9th Ave Apt 425",
+          "line2": "",
+          "city": "Columbus",
+          "state": "Ohio",
+          "postalcode": "43201",
+          "country": "US"
+        }
+      }
+    ],
+    "emails": [
+      {
+        "email": {
+          "emailaddr": "Hayden.Dygert1@ibm.com"
+        }
+      }
+    ],
+    "identifiers": [
+      {
+        "identifier": {
+          "id": "0J7871897",
+          "issuer": "ibm"
+        }
+      },
+      {
+        "identifier": {
+          "id": "210467",
+          "issuer": "workday"
+        }
+      }
+    ]
+  }
+]

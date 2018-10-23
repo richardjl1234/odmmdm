@@ -11,7 +11,9 @@ var async = require('async');
 
 //initialize the sql file and put them into varialbes 
 
-var feeders = [ 'HUS', 'HHA', 'HC9', 'HHP', 'HHI', 'HJP'];
+//var feeders = [ 'HC9', 'HSW', 'HNW' ];
+//var feeders = [ 'HUS', 'HHA', 'HPH', 'HHI', 'HJP' ];
+var feeders = [ 'HPH', 'HHI', 'HJP' ];
 //var feeders = ['HSW', 'HNW', 'HC9'];
 
 // define the functions from the curried base function. 
