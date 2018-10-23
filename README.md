@@ -1,11 +1,22 @@
-# to be updated!!
+# Solution to the MDM file creation for ODM application
 
-node --max-old-space-size=4096 merge.js
+## Files contained in this repo
+1. `read_xxxx.sql`  where xxxx stands for the 1st level properties required by MDM repository
+1. `read_filter.sql` This is the filter which is to applied to the above sql statements
+1. `app.js`  The main node.js program to :
+    1.  Based on the feeder codes provided in the read_filter.sql, for each feeder, run all the SQLs to get query results for a given property for that feeder.    
+    1.  The query results for "name", "email", "address", "phone", "identifier" are created for a given feeders. 
+    1.  For every data subject, there might be multiple records for a given property. For example, one can have multiple addresses in ODM database. Program will wrap multiple records to be one single property. For example, email record(s) will be  assigned to be "emails" properties in the json file and emails property will contain an array which holds all email records for that data subject.
+    1.  Program repeats the above steps to get all the results for all feeders given in the read_filter.sql
+    1.  All those results will be saved in the intermediate files. The file name will be feeder_properties.json. For example, HHA_emails.json
+    1.  For all feeders, assemble the above json files to create one single data object in json file. All properties (names, emails, identifiers, addresses, phones) will be assigned to each subject. One single file for each feeder will be created. 
+ 
+ 
+ ## How to run the node js application. We need to assign bigger memory space. 
+ 
+`node --max-old-space-size=4096 app.js`
 
-# Node.js db2 connection to on-premise z/OS DB2 and dashdb on CEDP
-
-This repo is to explain how to use node.js ibm_db package connect to on-premise z/OS database.  
-Also explains how to connect dashdb using SSL connection. 
+# Node.js db2 connection to on-premise z/OS DB2
 
 The application can be running on your local machine as well as running on Bluemix. 
 You can reply the sameple SQL statement in the application which fits your database.
