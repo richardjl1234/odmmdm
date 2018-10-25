@@ -13,7 +13,7 @@ traverse(a).forEach(function(x) {
 }) 
 
 console.log(JSON.stringify(a, null,2)) ; 
-
+console.log(a.length); 
 
 //
 //b = JSON.parse(a) ; 

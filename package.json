@@ -3,13 +3,14 @@
    "version": "0.0.2",
    "private": true,
    "scripts": {
-      "start": "node --max-old-space-size=3072 app.js"
+      "start": "node --max-old-space-size=2048 app.js"
    },
    "dependencies": {
       "express": "4.15.5",
       "dotenv": "6.0.0",
       "cfenv": "1.0.4",
       "ibm_db": "2.4.0", 
+      "traverse": "0.6.6",
       "ramda": "0.25.0", 
       "request": "2.87.0",
       "async": "2.6.1",

@@ -11,9 +11,9 @@ var async = require('async');
 
 //initialize the sql file and put them into varialbes 
 
-//var feeders = [ 'HC9', 'HSW', 'HNW' ];
+var feeders = [ 'HC9', 'HSW', 'HNW' ];
 //var feeders = [ 'HUS', 'HHA', 'HPH', 'HHI', 'HJP' ];
-var feeders = [ 'HJP' ];
+//var feeders = [ 'HJP', 'HUS', 'HHA', 'HHI' ];
 //var feeders = ['HSW', 'HNW', 'HC9'];
 
 // define the functions from the curried base function. 
@@ -63,8 +63,8 @@ http.createServer(function(request, response) {
       async.series(feederAsyncs , 
          function(err, results){ 
             console.log(results);
-            console.log("wait for 300s to make sure all files writting is completed!"); 
-            setTimeout( function() {async.series(curried_merge_result , function(err, rsts){ console.log(rsts); });}, 20000); 
+            console.log("wait for 100s to make sure all files writting is completed!"); 
+            setTimeout( function() {async.series(curried_merge_result , function(err, rsts){ console.log(rsts); });}, 100000); 
          }); 
       response.end(); 
    }; 
