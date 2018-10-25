@@ -13,7 +13,7 @@ var async = require('async');
 
 //var feeders = [ 'HC9', 'HSW', 'HNW' ];
 //var feeders = [ 'HUS', 'HHA', 'HPH', 'HHI', 'HJP' ];
-var feeders = [ 'HPH', 'HHI', 'HJP' ];
+var feeders = [ 'HJP' ];
 //var feeders = ['HSW', 'HNW', 'HC9'];
 
 // define the functions from the curried base function. 
@@ -27,12 +27,19 @@ var feeders = [ 'HPH', 'HHI', 'HJP' ];
 var process_feeder = _.curry(function(feeder, cb)
 {
    console.log("feeder is " + feeder) ; 
-   condition =  "where E01.CFDRSRC = "+ "'" + feeder + "';";   
+   condition =  "where E01.CFDRSRC = "+ "'" + feeder + "'";   
    console.log(condition) ; 
    var sqls=[]; 
    var keys = ['names', 'emails', 'addrs', 'tels', 'ids']; 
 
-   keys.map((key)=>{sqls[key] = fs.readFileSync('read_'+key+'.sql', 'utf8') + condition; });  
+   keys.map((key)=>{
+      str = fs.readFileSync('read_'+key+'.sql', 'utf8') ; 
+      sqls[key] = str.replace(/-- condition/g, condition ); 
+      sqls[key] = sqls[key] + ' ;' ; 
+      console.log(sqls[key]) ; 
+   });  
+
+
    async.map(keys, function(key, callback) {
       //console.log(sqls[key]) ; 
       common_func.queryODM(sqls[key])
@@ -57,7 +64,7 @@ http.createServer(function(request, response) {
          function(err, results){ 
             console.log(results);
             console.log("wait for 300s to make sure all files writting is completed!"); 
-            setTimeout( function() {async.series(curried_merge_result , function(err, rsts){ console.log(rsts); });}, 200000); 
+            setTimeout( function() {async.series(curried_merge_result , function(err, rsts){ console.log(rsts); });}, 20000); 
          }); 
       response.end(); 
    }; 

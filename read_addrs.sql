@@ -15,3 +15,4 @@ left outer join odmprd.odmt_hriw_country RAU
 on E02.CISOCTRY = RAU.CISOCTRY 
 and RAU.FDISCONT <> 'Y' 
 AND RAU.CLANGUAG = ''  
+-- condition
