@@ -10,6 +10,11 @@
     1.  Program repeats the above steps to get all the results for all feeders given in the read_filter.sql
     1.  All those results will be saved in the intermediate files. The file name will be feeder_properties.json. For example, HHA_emails.json
     1.  For all feeders, assemble the above json files to create one single data object in json file. All properties (names, emails, identifiers, addresses, phones) will be assigned to each subject. One single file for each feeder will be created. 
+    1.  The program also handle utf8 strings for both name field as well as address field
+    1.  Something need to be further improved. when the utf8 name/address is same as non-utf8 name/address, we need to find some way to remove those duplicate. 
+
+
+ 1. `node temp.js` is to merge the result into one single json file.    
  
  
  ## How to run the node js application. We need to assign bigger memory space. 
