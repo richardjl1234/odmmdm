@@ -11,7 +11,7 @@ var async = require('async');
 
 //initialize the sql file and put them into varialbes 
 
-var feeders = [ 'HC9', 'HSW', 'HNW' ];
+var feeders = [ 'HZA' ];
 //var feeders = [ 'HUS', 'HHA', 'HPH', 'HHI', 'HJP' ];
 //var feeders = [ 'HJP', 'HUS', 'HHA', 'HHI' ];
 //var feeders = ['HSW', 'HNW', 'HC9'];

@@ -1,7 +1,7 @@
 var traverse = require('traverse'); 
 fs = require('fs'); 
 
-a = JSON.parse(fs.readFileSync('HJP_all.json', 'utf8')); 
+a = JSON.parse(fs.readFileSync('HZA_all.json', 'utf8')); 
 
 traverse(a).forEach(function(x) {
    if (typeof(x)=='string') {
