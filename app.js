@@ -10,46 +10,48 @@ var ibmdb = require('ibm_db');
 var async = require('async'); 
 
 //initialize the sql file and put them into varialbes 
+var feederAsyncs = []; 
+var curried_merge_result = []; 
 
-var feeders = [ 'HZA' ];
-//var feeders = [ 'HUS', 'HHA', 'HPH', 'HHI', 'HJP' ];
-//var feeders = [ 'HJP', 'HUS', 'HHA', 'HHI' ];
-//var feeders = ['HSW', 'HNW', 'HC9'];
+fdr_sql = fs.readFileSync('read_fdr.sql', 'utf8') ; 
+common_func.queryODM(fdr_sql)
+   .then(function(result){
+      feeders= result.map((item)=>{return item.CFDRSRC }); 
+      console.log(feeders) ; 
+      feederAsyncs = feeders.map((feeder) => { return process_feeder(feeder); }); 
+      curried_merge_result = feeders.map((feeder)=>{return merge_result(feeder); }); 
+   } )
+   .catch(function(err) {console.log(err)});
 
+
+//var feeders = [ 'HZA' ];
 // define the functions from the curried base function. 
-
-   //return function(callback) {
-   //   process_feeder(feeder, callback);
-//      callback(null, feeder);
-//   }
-//}); 
-
 var process_feeder = _.curry(function(feeder, cb)
-{
-   console.log("feeder is " + feeder) ; 
-   condition =  "where E01.CFDRSRC = "+ "'" + feeder + "'";   
-   console.log(condition) ; 
-   var sqls=[]; 
-   var keys = ['names', 'emails', 'addrs', 'tels', 'ids']; 
+   {
+      console.log("feeder is " + feeder) ; 
+      condition =  "where E01.CFDRSRC = "+ "'" + feeder + "'";   
+      console.log(condition) ; 
+      var sqls=[]; 
+      var keys = ['names', 'emails', 'addrs', 'tels', 'ids']; 
 
-   keys.map((key)=>{
-      str = fs.readFileSync('read_'+key+'.sql', 'utf8') ; 
-      sqls[key] = str.replace(/-- condition/g, condition ); 
-      sqls[key] = sqls[key] + ' ;' ; 
-      console.log(sqls[key]) ; 
-   });  
+      keys.map((key)=>{
+         str = fs.readFileSync('read_'+key+'.sql', 'utf8') ; 
+         sqls[key] = str.replace(/-- condition/g, condition ); 
+         sqls[key] = sqls[key] + ' ;' ; 
+         console.log(sqls[key]) ; 
+      });  
 
 
-   async.map(keys, function(key, callback) {
-      //console.log(sqls[key]) ; 
-      common_func.queryODM(sqls[key])
-         .then(function(result) { curried_process_result[key](feeder, result); callback(null, key); })
-         .catch(function(err) { callback(err); }); 
-   }, function(err,results) { console.log(results); var x={}; x[feeder] = results; cb(null, x) }// cb is the the function need to be passed to process_feeder, and the assync which call this function will tell how to process the result. 
-   );
-}); 
+      async.map(keys, function(key, callback) {
+         //console.log(sqls[key]) ; 
+         common_func.queryODM(sqls[key])
+            .then(function(result) { curried_process_result[key](feeder, result); callback(null, key); })
+            .catch(function(err) { callback(err); }); 
+      }, function(err,results) { console.log(results); var x={}; x[feeder] = results; cb(null, x) }// cb is the the function need to be passed to process_feeder, and the assync which call this function will tell how to process the result. 
+      );
+   }); 
 
-var feederAsyncs = feeders.map((feeder) => { return process_feeder(feeder); }); 
+//var feederAsyncs = feeders.map((feeder) => { return process_feeder(feeder); }); 
 
 data = '' ; 
 n = 0;  // count for the feedback count
@@ -141,6 +143,6 @@ var merge_result = _.curry(function(feeder, cb) {
    cb(null, feeder + " is Done!"); 
 }); 
 
-var curried_merge_result = feeders.map((feeder)=>{return merge_result(feeder); }); 
+//var curried_merge_result = feeders.map((feeder)=>{return merge_result(feeder); }); 
 
 
