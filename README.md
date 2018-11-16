@@ -1,3 +1,5 @@
+*_this application currently only implemented in local, not deployed to bluemix yet_*
+
 # Solution to the MDM file creation for ODM application
 
 ## Files contained in this repo:
