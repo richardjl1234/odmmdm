@@ -9,3 +9,5 @@ result.json
 npm-debug.*
 result*.json
 H*.json
+F*json
+result/

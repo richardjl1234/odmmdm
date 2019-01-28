@@ -16,39 +16,36 @@ var curried_merge_result = [];
 fdr_sql = fs.readFileSync('read_fdr.sql', 'utf8') ; 
 common_func.queryODM(fdr_sql)
    .then(function(result){
-      feeders= result.map((item)=>{return item.CFDRSRC }); 
+      feeders= result.map(item=>item.CFDRSRC ); 
       console.log(feeders) ; 
-      feederAsyncs = feeders.map((feeder) => { return process_feeder(feeder); }); 
-      curried_merge_result = feeders.map((feeder)=>{return merge_result(feeder); }); 
+      feederAsyncs = feeders.map(feeder =>  process_feeder(feeder) ); 
+      curried_merge_result = feeders.map(feeder=>merge_result(feeder) ); 
    } )
    .catch(function(err) {console.log(err)});
 
 
-//var feeders = [ 'HZA' ];
 // define the functions from the curried base function. 
 var process_feeder = _.curry(function(feeder, cb)
    {
-      console.log("feeder is " + feeder) ; 
-      condition =  "where E01.CFDRSRC = "+ "'" + feeder + "'";   
-      console.log(condition) ; 
+      console.log("** Start processing feeder:" + feeder) ; 
+      condition =  `where E01.CFDRSRC = '${feeder}'`;   
+      //console.log(condition) ; 
       var sqls=[]; 
       var keys = ['names', 'emails', 'addrs', 'tels', 'ids']; 
 
       keys.map((key)=>{
          str = fs.readFileSync('read_'+key+'.sql', 'utf8') ; 
-         sqls[key] = str.replace(/-- condition/g, condition ); 
-         sqls[key] = sqls[key] + ' ;' ; 
-         console.log(sqls[key]) ; 
+         sqls[key] = str.replace(/-- condition/g, condition ) + ' ;' ; 
+        // console.log(sqls[key]) ; 
       });  
 
-
       async.map(keys, function(key, callback) {
-         //console.log(sqls[key]) ; 
          common_func.queryODM(sqls[key])
             .then(function(result) { curried_process_result[key](feeder, result); callback(null, key); })
             .catch(function(err) { callback(err); }); 
-      }, function(err,results) { console.log(results); var x={}; x[feeder] = results; cb(null, x) }// cb is the the function need to be passed to process_feeder, and the assync which call this function will tell how to process the result. 
-      );
+      }, function(err,results) { console.log(`*** feeder ${feeder} is processed: ${results}`); var x={}; x[feeder] = results; cb(null, x) });
+      // cb is the the function need to be passed to process_feeder, and the assync which call this function will tell how to process the result. 
+   
    }); 
 
 //var feederAsyncs = feeders.map((feeder) => { return process_feeder(feeder); }); 
@@ -65,8 +62,8 @@ http.createServer(function(request, response) {
       async.series(feederAsyncs , 
          function(err, results){ 
             console.log(results);
-            console.log("wait for 100s to make sure all files writting is completed!"); 
-            setTimeout( function() {async.series(curried_merge_result , function(err, rsts){ console.log(rsts); });}, 100000); 
+            console.log("wait for 1s to make sure all files writting is completed!"); 
+            setTimeout( function() {async.series(curried_merge_result , function(err, rsts){ console.log(rsts); });}, 100); 
          }); 
       response.end(); 
    }; 
@@ -95,7 +92,8 @@ var process_result = _.curry(function(sub_type, sub_types, fdr, result) {
       results_new[id][sub_types].push(results[item]); 
    }
    //mdm_result[sub_type] = results_new ; 
-   fs.writeFile(fdr+'_'+sub_types+'.json', JSON.stringify(results_new) , 'utf8', ()=>{console.log(fdr + ' ' + sub_types + ' file is written successfully!')}) ; 
+   fs.writeFileSync(fdr+'_'+sub_types+'.json', JSON.stringify(results_new) , 'utf8'); 
+   console.log( `${fdr} ${sub_types} file is written successfully!`)  ; 
    //fs.writeFileSync(fdr+'_'+sub_types+'.json', JSON.stringify(results_new) , 'utf8') ; 
    //console.log(JSON.stringify(mdm_result[sub_type])); 
 }); 
