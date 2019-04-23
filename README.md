@@ -24,6 +24,10 @@
  
 `node --max-old-space-size=4096 app.js`
 
+## about UTF-8 processing
++ currently, F table contains the utf8 string, when selecting, we use ##UTF8## in the result to tag the utf8 string
++ use traverse function in merge process to convert those ##UTF8## stirng to string. 
+
 # Node.js db2 connection to on-premise z/OS DB2
 
 The application can be running on your local machine as well as running on Bluemix. 
