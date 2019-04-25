@@ -5,7 +5,6 @@
 // step 5, remove the duplicates form the objects
 // step 6 write the result to the file in the result/final folder
 
-
 var lodash = require('lodash'); 
 var common_func=require('./common_func') ; 
 var _=require('ramda'); // make use of currying and compaose 
@@ -17,8 +16,8 @@ var request = require('request');
 var fs = require("fs-extra");
 var ibmdb = require('ibm_db');
 var async = require('async'); 
-
 var traverse = require('traverse'); 
+
 //initialize the sql file and put them into varialbes 
 var feederAsyncs = []; 
 var curried_merge_result = []; 
@@ -49,17 +48,15 @@ var process_feeder = _.curry(function(feeder, cb)
    {
       console.log("** Start processing feeder:" + feeder) ; 
       condition =  `where E01.CFDRSRC = '${feeder}' `;   
-      //console.log(condition); 
       //condition = condition + " AND e01.RCNUM IN ('000941724', '000519724', '943511672') ;  ";  
-      //console.log(condition); 
-      console.log(condition) ; 
+      //console.log(condition) ; 
       var sqls=[]; 
       var keys = ['names', 'emails', 'addrs', 'tels', 'ids']; 
 
       keys.map((key)=>{
          str = fs.readFileSync('read_'+key+'.sql', 'utf8') ; 
          sqls[key] = str.replace(/-- condition/g, condition ) + ' ;' ; 
-        // console.log(sqls[key]) ; 
+         //console.log(sqls[key]) ; 
       });  
 
       async.map(keys, function(key, callback) {
