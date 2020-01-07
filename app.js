@@ -4,14 +4,16 @@
 // step 4. handle the utf8 string to string
 // step 5, remove the duplicates form the objects
 // step 6 write the result to the file in the result/final folder
+// step 7, final verification, to verify the count in json file against the record count in odm database
 
+var http = require('http');
 var lodash = require('lodash'); 
 var common_func=require('./common_func') ; 
 var _=require('ramda'); // make use of currying and compaose 
 var http = require('http');
 var url = require('url') ; 
 var fs = require('fs'); 
-require('dotenv').load(); // load the environment variables. 
+//require('dotenv').load(); // load the environment variables. 
 var request = require('request');
 var fs = require("fs-extra");
 var ibmdb = require('ibm_db');
@@ -23,25 +25,28 @@ var feederAsyncs = [];
 var curried_merge_result = []; 
 
 fdr_sql = fs.readFileSync('read_fdr.sql', 'utf8') ; 
+
+// step 1, run the fdr query to get the list of fdrs
 common_func.queryODM(fdr_sql)
    .then(function(result){
       feeders= result.map(item=>item.CFDRSRC ); 
       console.log(feeders) ; 
-      feederAsyncs = feeders.map(feeder =>  process_feeder(feeder) ); 
-      curried_merge_result = feeders.map(feeder=>merge_result(feeder) ); 
-      // run the feederAsyncs procedures
+      feederAsyncs = feeders.map(feeder =>  process_feeder(feeder) );  // feederAsyncs are the functions for each feeders
+      curried_merge_result = feeders.map(feeder=>merge_result(feeder) );  // curried_merge_result is the function to merge result for each feeders 
+// step 2, for each feeder, prepare the sql for each properties, and run sql to get the result from database. process_feeder()
+// run the feederAsyncs procedures
       async.series(feederAsyncs , 
          function(err, results){ 
             console.log('\n\n******************' ) ; 
             console.log(results);
             //console.log("wait for 1s to make sure all files writting is completed!"); 
             //setTimeout( function() {async.series(curried_merge_result , function(err, rsts){ console.log(rsts); });}, 100); 
+// setp 3, for the result, need to process it and come up with the json format data , curried_process_result, every sub type result will be written into file
             async.series(curried_merge_result , function(err, rsts){ console.log(rsts); });
          }); 
       // this async is the main part
    } )
    .catch(function(err) {console.log(err)});
-
 
 // define the functions from the curried base function. 
 var process_feeder = _.curry(function(feeder, cb)
@@ -136,6 +141,7 @@ var merge_result = _.curry(function(feeder, cb) {
       result_all_final.push(Object.assign(a, result_all[item])) ; 
    }
 
+// step 4. handle the utf8 string to string
    console.log('\n** start to convert utf-8 string to string ** ') ; 
    traverse(result_all_final).forEach(function(x) {
       if (typeof(x)=='string') {
@@ -148,6 +154,7 @@ var merge_result = _.curry(function(feeder, cb) {
       } 
    }) ; 
 
+// step 5, remove the duplicates form the objects
    // remove the duplicates records from the final result
    result_all_final = result_all_final.map( (item) => {
       new_item = {}; 
@@ -178,12 +185,24 @@ var merge_result = _.curry(function(feeder, cb) {
 
 
 
+// step 6 write the result to the file in the result/final folder
    console.log('----------------------------');
    console.log("total count in " + feeder + " feeder is : "  , result_all_final.length); 
    fs.writeFileSync('result/final/ODM_MDM_' + feeder + '.json', JSON.stringify(result_all_final) , 'utf8') ;
    console.log("the file " + feeder + " is written successfully!") ; 
-   cb(null, feeder + " is Done!"); 
+// step 7, final verification, to verify the count in json file against the record count in odm database
+   fdr_cnt = {} ; 
+   fdr_cnt[feeder] = result_all_final.length;  //return the feeder: count dict in the callback
+   cb(null, fdr_cnt);
 }); 
 
 
-
+//http.createServer(function(request, response) {
+//   if(request.url!=="/favicon.ico"){
+//      response.writeHead(200, {'Content-Type': 'text/html; charset=utf-8'});
+//      data = 'hello world'; 
+//      response.write(data);
+//      };
+//      response.end('');
+//}).listen(8080);
+//console.log("Listening on port 8080.....");

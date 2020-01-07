@@ -1,0 +1,12 @@
+applications:
+- name: odmmdm
+  host: odmmdm
+  memory: 512M
+  instances: 1
+  domain: w3ibm.mybluemix.net
+  disk_quota: 1024M
+  docker: 
+   image: richardjl/odmmdm:$DSR_DOCKER_VERSION
+   username: richardjl
+  command: node --max-old-space-size=4096 app.js
+  env: 
