@@ -196,13 +196,12 @@ var merge_result = _.curry(function(feeder, cb) {
    cb(null, fdr_cnt);
 }); 
 
-
-//http.createServer(function(request, response) {
-//   if(request.url!=="/favicon.ico"){
-//      response.writeHead(200, {'Content-Type': 'text/html; charset=utf-8'});
-//      data = 'hello world'; 
-//      response.write(data);
-//      };
-//      response.end('');
-//}).listen(8080);
-//console.log("Listening on port 8080.....");
+http.createServer(function(request, response) {
+   if(request.url!=="/favicon.ico"){
+      response.writeHead(200, {'Content-Type': 'text/html; charset=utf-8'});
+      data = 'hello world'; 
+      response.write(data);
+      response.end('');
+      };
+}).listen(8080);
+console.log("Listening on port 8080.....");

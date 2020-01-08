@@ -1,5 +1,5 @@
 ibmdb = require('ibm_db') ; 
-require('dotenv').load(); 
+//require('dotenv').load(); 
 
 module.exports = {
    queryODM:function(sql) {
