@@ -4,9 +4,14 @@ applications:
   memory: 512M
   instances: 1
   domain: w3ibm.mybluemix.net
-  disk_quota: 1024M
+  disk_quota: 2048M
   docker: 
-   image: richardjl/odmmdm:$DSR_DOCKER_VERSION
+   image: richardjl/odmmdm:$ODMMDM_DOCKER_VERSION
    username: richardjl
   command: node --max-old-space-size=4096 app.js
   env: 
+   ODM_DATABASE_PROD : $ODM_DATABASE_PROD 
+   USER : $USER 
+   PASSWORD : $PASSWORD 
+   ODM_SERVER : $ODM_SERVER_cloud 
+   ODM_PORT_PROD : $ODM_PORT_PROD_cloud 

@@ -3,7 +3,7 @@ ibmdb = require('ibm_db') ;
 
 module.exports = {
    queryODM:function(sql) {
-      db_parm = "DRIVER={DB2};"+"DATABASE="+process.env.ODM_DB_NAME+";"+"UID="+process.env.ODM_USERID+";"+"PWD="+process.env.ODM_USERID_PASSWORD+";"+"HOSTNAME="+process.env.ODM_HOST+";"+"PORT="+process.env.ODM_PORT; 
+      db_parm = "DRIVER={DB2};"+"DATABASE="+process.env.ODM_DATABASE_PROD+";"+"UID="+process.env.USER+";"+"PWD="+process.env.PASSWORD+";"+"HOSTNAME="+process.env.ODM_SERVER+";"+"PORT="+process.env.ODM_PORT_PROD; 
       //console.log(db_parm) ; 
       return new Promise(function(resolve,reject) {
          ibmdb.open(db_parm, function(err, conn)

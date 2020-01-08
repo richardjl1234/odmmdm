@@ -39,8 +39,6 @@ common_func.queryODM(fdr_sql)
          function(err, results){ 
             console.log('\n\n******************' ) ; 
             console.log(results);
-            //console.log("wait for 1s to make sure all files writting is completed!"); 
-            //setTimeout( function() {async.series(curried_merge_result , function(err, rsts){ console.log(rsts); });}, 100); 
 // setp 3, for the result, need to process it and come up with the json format data , curried_process_result, every sub type result will be written into file
             async.series(curried_merge_result , function(err, rsts){ console.log(rsts); });
          }); 
