@@ -26,13 +26,21 @@ var curried_merge_result = [];
 
 fdr_sql = fs.readFileSync('read_fdr.sql', 'utf8') ; 
 
+//feederAsyncsCurry = _.curry(function(feeder, callback) { 
+//   async.series([process_feeder(feeder), merge_result(feeder)], function(err, results) {console.log(null, results);}   ) ; 
+//   callback(null, feeder);
+//}); 
+//
+
 // step 1, run the fdr query to get the list of fdrs
 common_func.queryODM(fdr_sql)
    .then(function(result){
       feeders= result.map(item=>item.CFDRSRC ); 
+      //feederAsyncs = feeders.map(feeder => feederAsyncsCurry(feeder));
+      feederAsyncs = feeders.map(feeder => process_feeder(feeder));
       console.log(feeders) ; 
-      feederAsyncs = feeders.map(feeder =>  process_feeder(feeder) );  // feederAsyncs are the functions for each feeders
-      curried_merge_result = feeders.map(feeder=>merge_result(feeder) );  // curried_merge_result is the function to merge result for each feeders 
+      // feederAsyncs are the functions for each feeders
+      //curried_merge_result = feeders.map(feeder=>merge_result(feeder) );  // curried_merge_result is the function to merge result for each feeders 
 // step 2, for each feeder, prepare the sql for each properties, and run sql to get the result from database. process_feeder()
 // run the feederAsyncs procedures
       async.series(feederAsyncs , 
@@ -194,12 +202,12 @@ var merge_result = _.curry(function(feeder, cb) {
    cb(null, fdr_cnt);
 }); 
 
-http.createServer(function(request, response) {
-   if(request.url!=="/favicon.ico"){
-      response.writeHead(200, {'Content-Type': 'text/html; charset=utf-8'});
-      data = 'hello world'; 
-      response.write(data);
-      response.end('');
-      };
-}).listen(8080);
-console.log("Listening on port 8080.....");
+//http.createServer(function(request, response) {
+//   if(request.url!=="/favicon.ico"){
+//      response.writeHead(200, {'Content-Type': 'text/html; charset=utf-8'});
+//      data = 'hello world'; 
+//      response.write(data);
+//      response.end('');
+//      };
+//}).listen(8080);
+//console.log("Listening on port 8080.....");
