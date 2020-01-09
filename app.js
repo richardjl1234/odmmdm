@@ -31,12 +31,12 @@ var process_feeder = _.curry(function(feeder, cb)
       console.log("** Start processing feeder/group:" + feeder) ; 
       //condition =  `where E01.CFDRSRC = '${feeder}' `;   
       if(feeder != 'X') {
-         condition =  `where SUBSTR(E01.RCNUM, 4,1)  = '${feeder}' `;   
+         condition =  `where SUBSTR(E01.RCNUM, 4,1)  = '${feeder[0]}' and E01.CODM = ${feeder[1]} `;   
       }else{
-         condition =  "where SUBSTR(E01.RCNUM, 4,1)  not in ( '0', '1', '2', '3', '4', '5', '6', '7', '8', '9')";   
+         condition =  `where SUBSTR(E01.RCNUM, 4,1)  not in ( '0', '1', '2', '3', '4', '5', '6', '7', '8', '9') and E01.CODM = ${feeder[1]}`;   
       }
       //condition = condition + " AND e01.RCNUM IN ('000941724', '000519724', '943511672') ;  ";  
-      //console.log(condition) ; 
+      console.log(condition) ; 
       var sqls=[]; 
       var keys = ['names', 'emails', 'addrs', 'tels', 'ids']; 
 
@@ -185,9 +185,13 @@ var merge_result = _.curry(function(feeder, cb) {
 // step 1, run the fdr query to get the list of fdrs
 // feeder ==> groups
 feeders = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'X']; 
-console.log(feeders) ; 
-feederAsyncs = feeders.map(feeder => process_feeder(feeder));
-curried_merge_result = feeders.map(feeder => merge_result(feeder)); 
+codms = ['A', 'E', 'P']; 
+groups = feeders.map(feeder => codms.map(codm => feeder+codm)) ;
+groups = [].concat(...groups); 
+
+console.log(groups) ; 
+feederAsyncs = groups.map(feeder => process_feeder(feeder));
+curried_merge_result = groups.map(feeder => merge_result(feeder)); 
 // step 2, for each feeder, prepare the sql for each properties, and run sql to get the result from database. process_feeder()
 // run the feederAsyncs procedures
 // this async is the main part
