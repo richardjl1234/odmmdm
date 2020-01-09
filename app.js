@@ -24,41 +24,17 @@ var traverse = require('traverse');
 var feederAsyncs = []; 
 var curried_merge_result = []; 
 
-fdr_sql = fs.readFileSync('read_fdr.sql', 'utf8') ; 
-
-//feederAsyncsCurry = _.curry(function(feeder, callback) { 
-//   async.series([process_feeder(feeder), merge_result(feeder)], function(err, results) {console.log(null, results);}   ) ; 
-//   callback(null, feeder);
-//}); 
-//
-
-// step 1, run the fdr query to get the list of fdrs
-common_func.queryODM(fdr_sql)
-   .then(function(result){
-      feeders= result.map(item=>item.CFDRSRC ); 
-      //feederAsyncs = feeders.map(feeder => feederAsyncsCurry(feeder));
-      feederAsyncs = feeders.map(feeder => process_feeder(feeder));
-      console.log(feeders) ; 
-      // feederAsyncs are the functions for each feeders
-      //curried_merge_result = feeders.map(feeder=>merge_result(feeder) );  // curried_merge_result is the function to merge result for each feeders 
-// step 2, for each feeder, prepare the sql for each properties, and run sql to get the result from database. process_feeder()
-// run the feederAsyncs procedures
-      async.series(feederAsyncs , 
-         function(err, results){ 
-            console.log('\n\n******************' ) ; 
-            console.log(results);
-// setp 3, for the result, need to process it and come up with the json format data , curried_process_result, every sub type result will be written into file
-            async.series(curried_merge_result , function(err, rsts){ console.log(rsts); });
-         }); 
-      // this async is the main part
-   } )
-   .catch(function(err) {console.log(err)});
 
 // define the functions from the curried base function. 
 var process_feeder = _.curry(function(feeder, cb)
    {
-      console.log("** Start processing feeder:" + feeder) ; 
-      condition =  `where E01.CFDRSRC = '${feeder}' `;   
+      console.log("** Start processing feeder/group:" + feeder) ; 
+      //condition =  `where E01.CFDRSRC = '${feeder}' `;   
+      if(feeder != 'X') {
+         condition =  `where SUBSTR(E01.RCNUM, 4,1)  = '${feeder}' `;   
+      }else{
+         condition =  "where SUBSTR(E01.RCNUM, 4,1)  not in ( '0', '1', '2', '3', '4', '5', '6', '7', '8', '9')";   
+      }
       //condition = condition + " AND e01.RCNUM IN ('000941724', '000519724', '943511672') ;  ";  
       //console.log(condition) ; 
       var sqls=[]; 
@@ -74,9 +50,9 @@ var process_feeder = _.curry(function(feeder, cb)
          common_func.queryODM(sqls[key])
             .then(function(result) { curried_process_result[key](feeder, result); callback(null, key); })
             .catch(function(err) { callback(err); }); 
-      }, function(err,results) { console.log(`*** feeder ${feeder} is processed: ${results}`); var x={}; x[feeder] = results; cb(null, x) });
+      }, function(err,results) { console.log(`*** feeder/group ${feeder} is processed: ${results}`); var x={}; x[feeder] = results; cb(null, x) });
       // cb is the the function need to be passed to process_feeder, and the assync which call this function will tell how to process the result. 
-   
+
    }); 
 
 
@@ -124,7 +100,7 @@ var merge_result = _.curry(function(feeder, cb) {
    addrs = JSON.parse(fs.readFileSync('result/' + feeder + '_addresses.json', 'utf8')) ; // read the json files
    emails = JSON.parse(fs.readFileSync('result/' + feeder + '_emails.json', 'utf8')) ; // read the json files
    ids = JSON.parse(fs.readFileSync('result/' + feeder + '_identifiers.json', 'utf8')) ;  // read the json files
- 
+
 
    var result_all = names; 
 
@@ -147,7 +123,7 @@ var merge_result = _.curry(function(feeder, cb) {
       result_all_final.push(Object.assign(a, result_all[item])) ; 
    }
 
-// step 4. handle the utf8 string to string
+   // step 4. handle the utf8 string to string
    console.log('\n** start to convert utf-8 string to string ** ') ; 
    traverse(result_all_final).forEach(function(x) {
       if (typeof(x)=='string') {
@@ -160,7 +136,7 @@ var merge_result = _.curry(function(feeder, cb) {
       } 
    }) ; 
 
-// step 5, remove the duplicates form the objects
+   // step 5, remove the duplicates form the objects
    // remove the duplicates records from the final result
    result_all_final = result_all_final.map( (item) => {
       new_item = {}; 
@@ -191,23 +167,44 @@ var merge_result = _.curry(function(feeder, cb) {
 
 
 
-// step 6 write the result to the file in the result/final folder
+   // step 6 write the result to the file in the result/final folder
    console.log('----------------------------');
    console.log("total count in " + feeder + " feeder is : "  , result_all_final.length); 
    fs.writeFileSync('result/final/ODM_MDM_' + feeder + '.json', JSON.stringify(result_all_final) , 'utf8') ;
    console.log("the file " + feeder + " is written successfully!") ; 
-// step 7, final verification, to verify the count in json file against the record count in odm database
+   // step 7, final verification, to verify the count in json file against the record count in odm database
    fdr_cnt = {} ; 
    fdr_cnt[feeder] = result_all_final.length;  //return the feeder: count dict in the callback
    cb(null, fdr_cnt);
 }); 
 
-//http.createServer(function(request, response) {
-//   if(request.url!=="/favicon.ico"){
-//      response.writeHead(200, {'Content-Type': 'text/html; charset=utf-8'});
-//      data = 'hello world'; 
-//      response.write(data);
-//      response.end('');
-//      };
-//}).listen(8080);
-//console.log("Listening on port 8080.....");
+
+
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// step 1, run the fdr query to get the list of fdrs
+// feeder ==> groups
+feeders = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'X']; 
+console.log(feeders) ; 
+feederAsyncs = feeders.map(feeder => process_feeder(feeder));
+curried_merge_result = feeders.map(feeder => merge_result(feeder)); 
+// step 2, for each feeder, prepare the sql for each properties, and run sql to get the result from database. process_feeder()
+// run the feederAsyncs procedures
+// this async is the main part
+
+http.createServer(function(request, response) {
+   if(request.url!=="/favicon.ico"){
+      response.writeHead(200, {'Content-Type': 'text/html; charset=utf-8'});
+      data = 'hello world'; 
+      response.write(data);
+      response.end('');
+      async.series(feederAsyncs , 
+         function(err, results){ 
+            console.log('\n\n******************' ) ; 
+            console.log(results);
+            // setp 3, for the result, need to process it and come up with the json format data , curried_process_result, every sub type result will be written into file
+            async.series(curried_merge_result , function(err, rsts){ console.log(rsts); });
+         }); 
+      };
+}).listen(8080);
+console.log("Listening on port 8080.....");

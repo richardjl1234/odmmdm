@@ -8,7 +8,7 @@ applications:
   docker: 
    image: richardjl/odmmdm:$ODMMDM_DOCKER_VERSION
    username: richardjl
-  command: node --max-old-space-size=4096 app.js
+  command: node app.js
   env: 
    ODM_DATABASE_PROD : $ODM_DATABASE_PROD 
    USER : $USER 
