@@ -8,5 +8,5 @@ docker run \
    -v /Users/jianglei/Documents/GitHub/odmmdm/result:/app/result \
    -p 8080:8080 \
    -it odmmdm:$1 \
-   node --max-old-space-size=4096 app.js
+   node app.js
 
