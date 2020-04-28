@@ -2,11 +2,13 @@ FROM ubuntu:latest
 
 RUN apt-get update
 RUN apt-get install --yes curl
+RUN apt-get autoclean
 #RUN apt-get install --yes git
 #RUN apt-get install --yes wget
 #RUN apt-get install openjdk-8-jdk
 #ENV NPM_CONFIG_LOGLEVEL info
 ENV NODE_VERSION 6.10.2
+#ENV NODE_VERSION 8.17.0 
 
 RUN curl -SLO "https://nodejs.org/dist/v$NODE_VERSION/node-v$NODE_VERSION-linux-x64.tar.gz" \
   && curl -SLO "https://nodejs.org/dist/v$NODE_VERSION/SHASUMS256.txt.asc" \
