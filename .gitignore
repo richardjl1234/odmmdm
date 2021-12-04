@@ -1,0 +1,14 @@
+.env*
+ibm-truststore.jks
+db2con*.lic
+node_modules
+.profile
+manifest.yml
+node*.log
+result.json
+npm-debug.*
+result*.json
+H*.json
+F*json
+result/
+bk/

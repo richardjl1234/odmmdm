@@ -1,0 +1,17 @@
+applications:
+- name: odmmdm
+  host: odmmdm
+  memory: 512M
+  instances: 1
+  domain: w3ibm.mybluemix.net
+  disk_quota: 2048M
+  docker: 
+   image: richardjl/odmmdm:$ODMMDM_DOCKER_VERSION
+   username: richardjl
+  command: node app.js
+  env: 
+   ODM_DATABASE_PROD : $ODM_DATABASE_PROD 
+   USER : $USER 
+   PASSWORD : $PASSWORD 
+   ODM_SERVER : $ODM_SERVER_cloud 
+   ODM_PORT_PROD : $ODM_PORT_PROD_cloud 
