@@ -6,7 +6,7 @@
       "start": "node --max-old-space-size=4096 app.js"
    },
    "dependencies": {
-      "express": "4.15.5",
+      "express": "4.19.2",
       "dotenv": "6.0.0",
       "deep-equal": "1.0.1",
       "cfenv": "1.0.4",
